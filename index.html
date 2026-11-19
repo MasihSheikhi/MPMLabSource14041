@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="En" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>MPMLab Source - Direct Download</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+
+        .repo-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .repo-info {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .branch-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .branch-selector select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95em;
+            background: white;
+            max-width: 120px;
+        }
+
+        .repo-path {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95em;
+            color: #495057;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .repo-path span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 50px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .download-zip-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .download-zip-btn:hover {
+            background: #218838;
+        }
+
+        .manual-input {
+            padding: 15px;
+            background: #fff3cd;
+            border-bottom: 1px solid #ffeeba;
+            display: none;
+        }
+
+        .manual-input.show {
+            display: block;
+        }
+
+        .manual-input input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .manual-input button {
+            padding: 10px 20px;
+            background: #ffc107;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .search-box {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .file-list {
+            padding: 15px;
+            min-height: 300px;
+            max-height: 70vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .folder-section {
+            margin-bottom: 12px;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            min-width: 0;
+        }
+
+        .folder-header i {
+            color: #FFD43B;
+            font-size: 1.1em;
+            min-width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .folder-header .folder-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .folder-header .folder-count {
+            background: #6B73FF;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .folder-header .toggle-icon {
+            color: #6c757d;
+            transition: transform 0.2s;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        .folder-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .folder-download-btn {
+            background: #6B73FF;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            margin-left: 4px;
+            white-space: nowrap;
+            transition: background 0.2s;
+            min-height: 32px;
+        }
+        .folder-download-btn:hover {
+            background: #5159e0;
+        }
+        @media (max-width: 480px) {
+            .folder-download-btn {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+        }
+
+        .folder-content {
+            margin-right: 15px;
+            border-right: 2px dashed #dee2e6;
+            padding-right: 10px;
+        }
+
+        .folder-header.collapsed + .folder-content {
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .file-icon {
+            font-size: 1.1em;
+            min-width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 0.95em;
+            color: #212529;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-path {
+            font-size: 0.7em;
+            color: #6c757d;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .download-btn i {
+            font-size: 0.9em;
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 0.85em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6B73FF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .root-btn {
+            background: none;
+            border: none;
+            color: #6B73FF;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .retry-btn {
+            padding: 8px 25px;
+            background: #6B73FF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+
+        button, select, .folder-header, .download-btn, .folder-download-btn {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .folder-header, .file-item {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MPMLab Source</h1>
+            <p>Github Pages - LuChristCho</p>
+        </div>
+
+        <div class="repo-info">
+            <div class="branch-selector">
+                <select id="branchSelect" onchange="loadFiles()">
+                    <option value="main">main</option>
+                    <option value="master">master</option>
+                    <option value="gh-pages">gh-pages</option>
+                </select>
+                <div class="repo-path">
+                    <i>📂</i>
+                    <span id="repoPath"></span>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <i>📁</i>
+                    <span id="folderCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <i>📄</i>
+                    <span id="fileCount">0</span>
+                </div>
+                <a id="downloadZipBtn" class="download-zip-btn" target="_blank" rel="noopener noreferrer">
+                    <i>📦</i> <span class="hide-on-mobile">(240MB)</span><span class="show-on-mobile">Download ZIP</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="manual-input" id="manualInput">
+            <p>⚠️ Repository information could not be detected automatically. Please enter manually:</p>
+            <input type="text" id="manualOwner" placeholder="GitHub username (e.g., username)" value="LuChristCho">
+            <input type="text" id="manualRepo" placeholder="Repository name (e.g., my-project)" value="MPMLabSource">
+            <button onclick="manualLoad()">Load with manual information</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Searching..." onkeyup="filterItems()">
+        </div>
+
+        <div class="file-list" id="fileList">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Click on any file to download | Last updated: <span id="updateDate"></span></p>
+        </div>
+    </div>
+
+    <script>
+        let allFiles = [];
+        let currentOwner = 'MasihSheikhi';
+        let currentRepo = 'MPMLabSource14041';
+        let currentBranch = 'main';
+
+        document.getElementById('updateDate').textContent = new Date().toLocaleDateString('en-GB');
+        document.getElementById('repoPath').textContent = `${currentOwner}/${currentRepo}`;
+        
+        function updateZipLink() {
+            document.getElementById('downloadZipBtn').href = `https://github.com/${currentOwner}/${currentRepo}/archive/refs/heads/${currentBranch}.zip`;
+        }
+        updateZipLink();
+
+        async function loadFiles() {
+            currentBranch = document.getElementById('branchSelect').value;
+            updateZipLink();
+            
+            document.getElementById('fileList').innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading...</p>
+                </div>
+            `;
+
+            await fetchFiles();
+        }
+
+        async function manualLoad() {
+            currentOwner = document.getElementById('manualOwner').value.trim();
+            currentRepo = document.getElementById('manualRepo').value.trim();
+            currentBranch = document.getElementById('branchSelect').value;
+
+            if (!currentOwner || !currentRepo) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            document.getElementById('manualInput').classList.remove('show');
+            document.getElementById('repoPath').textContent = `${currentOwner}/${currentRepo}`;
+            updateZipLink();
+            await fetchFiles();
+        }
+
+        async function fetchFiles() {
+            try {
+                const apiUrl = `https://api.github.com/repos/${currentOwner}/${currentRepo}/git/trees/${currentBranch}?recursive=1`;
+                
+                let response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        const masterUrl = `https://api.github.com/repos/${currentOwner}/${currentRepo}/git/trees/master?recursive=1`;
+                        response = await fetch(masterUrl);
+                        if (response.ok) {
+                            currentBranch = 'master';
+                            document.getElementById('branchSelect').value = 'master';
+                            updateZipLink();
+                        } else {
+                            throw new Error('Branch not found');
+                        }
+                    } else {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+                
+                if (data.tree) {
+                    allFiles = data.tree.filter(item => item.type === 'blob');
+                    
+                    if (allFiles.length === 0) {
+                        await fetchFilesAlternative();
+                    } else {
+                        buildFileTree();
+                        displayFiles();
+                        updateStats();
+                    }
+                } else {
+                    await fetchFilesAlternative();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await fetchFilesAlternative();
+            }
+        }
+
+        async function fetchFilesAlternative() {
+            try {
+                const contentsUrl = `https://api.github.com/repos/${currentOwner}/${currentRepo}/contents?ref=${currentBranch}`;
+                
+                const response = await fetch(contentsUrl);
+                
+                if (!response.ok) {
+                    throw new Error('Alternative method failed');
+                }
+
+                allFiles = [];
+                await processContents(response.json());
+                
+                if (allFiles.length > 0) {
+                    buildFileTree();
+                    displayFiles();
+                    updateStats();
+                } else {
+                    showError('No files found');
+                }
+            } catch (error) {
+                console.error('Alternative error:', error);
+                showError('Error connecting to GitHub');
+            }
+        }
+
+        async function processContents(contentsPromise) {
+            const contents = await contentsPromise;
+            
+            for (const item of contents) {
+                if (item.type === 'file') {
+                    allFiles.push({
+                        path: item.path,
+                        type: 'blob',
+                        url: item.download_url
+                    });
+                } else if (item.type === 'dir') {
+                    const dirResponse = await fetch(item.url);
+                    const dirContents = await dirResponse.json();
+                    await processContents(Promise.resolve(dirContents));
+                }
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('fileList').innerHTML = `
+                <div class="error-state">
+                    <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
+                    <h3>${message}</h3>
+                    <p>Please make sure the repository is public and the address is correct.</p>
+                    <button class="retry-btn" onclick="loadFiles()">Try Again</button>
+                </div>
+            `;
+        }
+
+        function buildFileTree() {
+            window.fileTree = {};
+            
+            allFiles.forEach(file => {
+                const parts = file.path.split('/');
+                let current = window.fileTree;
+                
+                for (let i = 0; i < parts.length; i++) {
+                    const part = parts[i];
+                    if (i === parts.length - 1) {
+                        if (!current.files) current.files = [];
+                        let downloadUrl = file.url;
+                        if (!downloadUrl) {
+                            downloadUrl = `https://raw.githubusercontent.com/${currentOwner}/${currentRepo}/${currentBranch}/${file.path}`;
+                        }
+                        current.files.push({
+                            name: part,
+                            path: file.path,
+                            url: downloadUrl
+                        });
+                    } else {
+                        if (!current[part]) {
+                            current[part] = {};
+                        }
+                        current = current[part];
+                    }
+                }
+            });
+        }
+
+        function downloadFolderAsZip(folderPath) {
+            let cleanPath = folderPath.replace(/^\/+|\/+$/g, '');
+            const githubUrl = `https://github.com/${currentOwner}/${currentRepo}/tree/${currentBranch}/${cleanPath}`;
+            const downloadServiceUrl = `https://download-directory.github.io/?url=${encodeURIComponent(githubUrl)}`;
+            window.open(downloadServiceUrl, '_blank');
+        }
+
+        function displayFiles(node = window.fileTree, level = 0) {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const container = document.getElementById('fileList');
+            
+            if (level === 0) {
+                container.innerHTML = renderNode(node, '', searchTerm) || '<div class="empty-state">No files found</div>';
+            }
+        }
+
+        function renderNode(node, path = '', searchTerm = '') {
+            let html = '';
+            
+            const folders = Object.keys(node).filter(key => key !== 'files' && typeof node[key] === 'object').sort();
+            
+            folders.forEach(key => {
+                const folderPath = path ? `${path}/${key}` : key;
+                const folderContent = node[key];
+                
+                const fileCount = folderContent.files ? folderContent.files.length : 0;
+                
+                const hasMatchingContent = searchTerm === '' || 
+                    key.toLowerCase().includes(searchTerm) || 
+                    (folderContent.files && folderContent.files.some(f => f.name.toLowerCase().includes(searchTerm)));
+                
+                if (hasMatchingContent || searchTerm === '') {
+                    html += `
+                        <div class="folder-section">
+                            <div class="folder-header collapsed" onclick="toggleFolder(this)">
+                                <i>📁</i>
+                                <span class="folder-name" title="${key}">${key}</span>
+                                ${fileCount > 0 ? `<span class="folder-count">${fileCount}</span>` : ''}
+                                <a class="folder-download-btn" href="#" onclick="event.stopPropagation(); downloadFolderAsZip('${folderPath}'); return false;" title="Download folder as ZIP">
+                                    <i>📦</i> <span>ZIP</span>
+                                </a>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="folder-content">
+                                ${renderNode(folderContent, folderPath, searchTerm)}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (node.files) {
+                const sortedFiles = [...node.files].sort((a, b) => a.name.localeCompare(b.name));
+                
+                sortedFiles.forEach(file => {
+                    if (searchTerm === '' || file.name.toLowerCase().includes(searchTerm) || file.path.toLowerCase().includes(searchTerm)) {
+                        html += createFileItem(file);
+                    }
+                });
+            }
+            
+            return html;
+        }
+
+        function createFileItem(file) {
+            const fileName = file.name || file.path.split('/').pop();
+            
+            let downloadLink = file.url;
+            if (downloadLink && downloadLink.includes('api.github.com/repos/') && downloadLink.includes('/git/blobs/')) {
+                downloadLink = `https://raw.githubusercontent.com/${currentOwner}/${currentRepo}/${currentBranch}/${file.path}`;
+            }
+            
+            return `
+                <div class="file-item">
+                    <div class="file-icon">${getFileIcon(fileName)}</div>
+                    <div class="file-info">
+                        <div class="file-name" title="${fileName}">${fileName}</div>
+                        <div class="file-path" title="${file.path}">${file.path}</div>
+                    </div>
+                    <a href="${downloadLink}" class="download-btn" target="_blank" rel="noopener noreferrer" download onclick="event.stopPropagation()">
+                        <i>⬇️</i> DL
+                    </a>
+                </div>
+            `;
+        }
+
+        function getFileIcon(fileName) {
+            const extension = fileName.split('.').pop().toLowerCase();
+            const icons = {
+                'js': '📜', 'html': '🌐', 'css': '🎨', 'json': '📋',
+                'md': '📝', 'txt': '📄', 'jpg': '🖼️', 'png': '🖼️',
+                'gif': '🖼️', 'pdf': '📕', 'zip': '📦', 'py': '🐍',
+                'java': '☕', 'cpp': '⚙️', 'php': '🐘', 'xml': '🔧',
+                'yml': '⚙️', 'yaml': '⚙️', 'sh': '🐚', 'bat': '📦',
+                'mp4': '🎬', 'mp3': '🎵', 'wav': '🎵', 'doc': '📝',
+                'xls': '📊', 'ppt': '📽️'
+            };
+            return icons[extension] || '📄';
+        }
+
+        function updateStats() {
+            const folders = new Set();
+            allFiles.forEach(file => {
+                const parts = file.path.split('/');
+                if (parts.length > 1) {
+                    folders.add(parts[0]);
+                }
+            });
+            
+            document.getElementById('folderCount').textContent = folders.size;
+            document.getElementById('fileCount').textContent = allFiles.length;
+        }
+
+        function toggleFolder(header) {
+            header.classList.toggle('collapsed');
+        }
+
+        function filterItems() {
+            if (window.fileTree) {
+                displayFiles();
+            }
+        }
+
+        window.onload = function() {
+            loadFiles();
+        };
+    </script>
+</body>
+</html>
